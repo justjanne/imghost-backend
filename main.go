@@ -48,6 +48,8 @@ func processImage(config *Config, client *redis.Client, value string) {
 		}
 	}
 
+	os.Remove(filepath.Join(config.SourceFolder, image.Id))
+
 	fmt.Printf("Finished task %s at %d\n", image.Id, time.Now().Unix())
 
 	if len(errors) != 0 {
