@@ -1,0 +1,8 @@
+package: github.com/justjanne/imghost
+import:
+- package: gopkg.in/gographics/imagick.v2
+  version: ^2.5.0
+  subpackages:
+  - imagick
+- package: github.com/go-redis/redis
+  version: ^6.10.2
