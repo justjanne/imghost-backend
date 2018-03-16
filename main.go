@@ -7,6 +7,7 @@ import (
 	"gopkg.in/gographics/imagick.v2/imagick"
 	"fmt"
 	"path/filepath"
+	"time"
 )
 
 func returnResult(config *Config, client *redis.Client, result Result) {
@@ -31,6 +32,7 @@ func processImage(config *Config, client *redis.Client, value string) {
 	if err := json.Unmarshal([]byte(value), &image); err != nil {
 		panic(err)
 	}
+	fmt.Printf("Received task %s at %d\n", image.Id, time.Now().Unix())
 
 	errorChannel := make(chan error)
 
@@ -39,18 +41,20 @@ func processImage(config *Config, client *redis.Client, value string) {
 	}
 
 	errors := make([]string, 0)
-	for i:= 0; i < len(config.Sizes); i++ {
-		error := <- errorChannel
+	for i := 0; i < len(config.Sizes); i++ {
+		error := <-errorChannel
 		if error != nil {
 			errors = append(errors, error.Error())
 		}
 	}
 
+	fmt.Printf("Finished task %s at %d\n", image.Id, time.Now().Unix())
+
 	if len(errors) != 0 {
 		returnResult(config, client, Result{
-			Id:     image.Id,
+			Id:      image.Id,
 			Success: false,
-			Errors: errors,
+			Errors:  errors,
 		})
 	} else {
 		returnResult(config, client, Result{

@@ -93,6 +93,8 @@ func resize(source string, size Size, quality Quality, target string) error {
 		mw.SetSamplingFactors(quality.SamplingFactors)
 	}
 
+	mw.StripImage()
+
 	err = mw.WriteImage(target)
 	return err
 }
