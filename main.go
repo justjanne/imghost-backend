@@ -68,6 +68,7 @@ func main() {
 	config.SourceFolder = os.Getenv("IK8R_SOURCE_FOLDER")
 	config.TargetFolder = os.Getenv("IK8R_TARGET_FOLDER")
 	config.Redis.Address = os.Getenv("IK8R_REDIS_ADDRESS")
+	config.Redis.Password = os.Getenv("IK8R_REDIS_PASSWORD")
 	config.ImageQueue = os.Getenv("IK8R_REDIS_IMAGE_QUEUE")
 	config.ResultChannel = os.Getenv("IK8R_REDIS_RESULT_CHANNEL")
 
@@ -81,7 +82,9 @@ func main() {
 
 	for {
 		element := client.BLPop(0, fmt.Sprintf("queue:%s", config.ImageQueue))
-		value := element.Val()[1]
-		go processImage(&config, client, value)
+		if len(element.Val()) == 2 {
+			value := element.Val()[1]
+			go processImage(&config, client, value)
+		}
 	}
 }
