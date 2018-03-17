@@ -67,16 +67,7 @@ func processImage(config *Config, client *redis.Client, value string) {
 }
 
 func main() {
-	config := Config{}
-
-	json.Unmarshal([]byte(os.Getenv("IK8R_SIZES")), &config.Sizes)
-	json.Unmarshal([]byte(os.Getenv("IK8R_QUALITY")), &config.Quality)
-	config.SourceFolder = os.Getenv("IK8R_SOURCE_FOLDER")
-	config.TargetFolder = os.Getenv("IK8R_TARGET_FOLDER")
-	config.Redis.Address = os.Getenv("IK8R_REDIS_ADDRESS")
-	config.Redis.Password = os.Getenv("IK8R_REDIS_PASSWORD")
-	config.ImageQueue = os.Getenv("IK8R_REDIS_IMAGE_QUEUE")
-	config.ResultChannel = os.Getenv("IK8R_REDIS_RESULT_CHANNEL")
+	config := NewConfigFromEnv()
 
 	imagick.Initialize()
 	defer imagick.Terminate()
