@@ -1,5 +1,5 @@
-hash: ef0e42ee6eed4b21abc2cabdd3897ad66954962cac25f0ca0fa63c041758d256
-updated: 2018-03-16T14:48:42.652118658+01:00
+hash: 2c515c806a97d3d8ec63b3c01acbedf214ae1b3750abd9f0b85f1e872412c236
+updated: 2018-03-17T03:14:04.934337932+01:00
 imports:
 - name: github.com/go-redis/redis
   version: 877867d2845fbaf86798befe410b6ceb6f5c29a3

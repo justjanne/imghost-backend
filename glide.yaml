@@ -1,4 +1,4 @@
-package: github.com/justjanne/imghost
+package: git.kuschku.de/justjanne/imghost
 import:
 - package: gopkg.in/gographics/imagick.v2
   version: ^2.5.0
