@@ -1,10 +1,10 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"gopkg.in/gographics/imagick.v2/imagick"
 	"math"
-	"fmt"
-	"errors"
 )
 
 func resize(source string, size Size, quality Quality, target string) error {
@@ -25,7 +25,7 @@ func resize(source string, size Size, quality Quality, target string) error {
 
 	var nWidth, nHeight uint
 	if size.Height != 0 && size.Width != 0 {
-		if size.Format == SIZE_FORMAT_CONTAIN {
+		if size.Format == sizeFormatContain {
 			if aspectRatio > 1 {
 				nWidth = uint(math.Min(float64(size.Width), float64(width)))
 				nHeight = uint(math.Round(float64(nWidth) / aspectRatio))
@@ -33,7 +33,7 @@ func resize(source string, size Size, quality Quality, target string) error {
 				nHeight = uint(math.Min(float64(size.Height), float64(height)))
 				nWidth = uint(math.Round(aspectRatio * float64(nHeight)))
 			}
-		} else if size.Format == SIZE_FORMAT_COVER {
+		} else if size.Format == sizeFormatCover {
 			var targetAspectRatio = float64(size.Width) / float64(size.Height)
 			var cWidth, cHeight uint
 			if targetAspectRatio > aspectRatio {
