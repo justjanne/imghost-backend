@@ -19,9 +19,10 @@ func returnResult(config *Config, client *redis.Client, result Result) {
 	client.Publish(config.ResultChannel, string(raw))
 }
 
-func generateSize(errorChannel chan error, config *Config, image Image, definition SizeDefinition) {
+func generateSize(errorChannel chan error, wand *imagick.MagickWand, wandLinear *imagick.MagickWand, config *Config, image Image, definition SizeDefinition) {
 	errorChannel <- resize(
-		filepath.Join(config.SourceFolder, image.Id),
+		wand,
+		wandLinear,
 		definition.Size,
 		config.Quality,
 		filepath.Join(config.TargetFolder, fmt.Sprintf("%s%s", image.Id, definition.Suffix)),
@@ -37,8 +38,22 @@ func processImage(config *Config, client *redis.Client, value string) {
 
 	errorChannel := make(chan error)
 
+	wand := imagick.NewMagickWand()
+	defer wand.Destroy()
+
+	err := wand.ReadImage(filepath.Join(config.SourceFolder, image.Id))
+	if err != nil {
+		panic(err)
+	}
+
+	wandLinear := wand.Clone()
+	err = wandLinear.TransformImageColorspace(imagick.COLORSPACE_RGB)
+	if err != nil {
+		panic(err)
+	}
+
 	for _, definition := range config.Sizes {
-		go generateSize(errorChannel, config, image, definition)
+		go generateSize(errorChannel, wand, wandLinear, config, image, definition)
 	}
 
 	errors := make([]string, 0)
