@@ -68,23 +68,25 @@ func processImage(config *Config, client *redis.Client, value string) {
 }
 
 func main() {
-	config := NewConfigFromEnv()
+	go func() {
+		config := NewConfigFromEnv()
 
-	imagick.Initialize()
-	defer imagick.Terminate()
+		imagick.Initialize()
+		defer imagick.Terminate()
 
-	client := redis.NewClient(&redis.Options{
-		Addr:     config.Redis.Address,
-		Password: config.Redis.Password,
-	})
+		client := redis.NewClient(&redis.Options{
+			Addr:     config.Redis.Address,
+			Password: config.Redis.Password,
+		})
 
-	for {
-		element := client.BLPop(0, fmt.Sprintf("queue:%s", config.ImageQueue))
-		if len(element.Val()) == 2 {
-			value := element.Val()[1]
-			go processImage(&config, client, value)
+		for {
+			element := client.BLPop(0, fmt.Sprintf("queue:%s", config.ImageQueue))
+			if len(element.Val()) == 2 {
+				value := element.Val()[1]
+				go processImage(&config, client, value)
+			}
 		}
-	}
+	}()
 
 	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK"))
