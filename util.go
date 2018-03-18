@@ -10,7 +10,7 @@ import (
 func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size, quality Quality, target string) error {
 	var err error
 	var mw *imagick.MagickWand
-	defer mw.Destroy()
+	defer mw.Clear()
 
 	if size.Width == 0 && size.Height == 0 {
 		mw = wand.Clone()
