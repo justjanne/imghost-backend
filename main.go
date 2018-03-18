@@ -42,9 +42,9 @@ func processImage(config *Config, client *redis.Client, value string) {
 
 	errors := make([]string, 0)
 	for i := 0; i < len(config.Sizes); i++ {
-		error := <-errorChannel
-		if error != nil {
-			errors = append(errors, error.Error())
+		err := <-errorChannel
+		if err != nil {
+			errors = append(errors, err.Error())
 		}
 	}
 
