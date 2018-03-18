@@ -11,4 +11,4 @@ COPY . .
 RUN glide install
 RUN go build -a app .
 
-CMD ["./app"]
+ENTRYPOINT ["./app"]
