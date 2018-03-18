@@ -13,8 +13,10 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size,
 
 	if size.Width == 0 && size.Height == 0 {
 		mw = wand.Clone()
+		defer mw.Destroy()
 	} else {
 		mw = wandLinear.Clone()
+		defer mw.Destroy()
 
 		width := mw.GetImageWidth()
 		height := mw.GetImageHeight()
@@ -90,8 +92,6 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size,
 	mw.StripImage()
 
 	err = mw.WriteImage(target)
-
-	mw.Destroy()
 
 	return err
 }

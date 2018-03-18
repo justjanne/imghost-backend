@@ -39,6 +39,7 @@ func processImage(config *Config, client *redis.Client, value string) {
 	errorChannel := make(chan error)
 
 	wand := imagick.NewMagickWand()
+	defer wand.Destroy()
 
 	err := wand.ReadImage(filepath.Join(config.SourceFolder, image.Id))
 	if err != nil {
@@ -46,6 +47,8 @@ func processImage(config *Config, client *redis.Client, value string) {
 	}
 
 	wandLinear := wand.Clone()
+	defer wandLinear.Destroy()
+
 	err = wandLinear.TransformImageColorspace(imagick.COLORSPACE_RGB)
 	if err != nil {
 		panic(err)
@@ -79,9 +82,6 @@ func processImage(config *Config, client *redis.Client, value string) {
 			Success: true,
 		})
 	}
-
-	wand.Destroy()
-	wandLinear.Destroy()
 }
 
 func main() {
