@@ -5,11 +5,16 @@ import (
 	"fmt"
 	"gopkg.in/gographics/imagick.v2/imagick"
 	"math"
+	"time"
 )
 
 func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size, quality Quality, target string) error {
 	var err error
 	var mw *imagick.MagickWand
+
+	fmt.Printf("%s start", size.Format)
+
+	start := time.Now().Unix()
 
 	if size.Width == 0 && size.Height == 0 {
 		mw = wand.Clone()
@@ -92,6 +97,9 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size,
 	mw.StripImage()
 
 	err = mw.WriteImage(target)
+
+	end := time.Now().Unix()
+	fmt.Printf("%s took %d seconds", size.Format, end - start)
 
 	return err
 }
