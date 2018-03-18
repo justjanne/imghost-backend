@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"time"
+	"net/http"
 )
 
 func returnResult(config *Config, client *redis.Client, result Result) {
@@ -83,5 +84,14 @@ func main() {
 			value := element.Val()[1]
 			go processImage(&config, client, value)
 		}
+	}
+
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	})
+
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		panic(err)
 	}
 }
