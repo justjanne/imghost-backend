@@ -80,8 +80,8 @@ func processImage(config *Config, client *redis.Client, value string) {
 		})
 	}
 
-	wand.Clear()
-	wandLinear.Clear()
+	wand.Destroy()
+	wandLinear.Destroy()
 }
 
 func main() {

@@ -91,7 +91,7 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size,
 
 	err = mw.WriteImage(target)
 
-	mw.Clear()
+	mw.Destroy()
 
 	return err
 }
