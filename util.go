@@ -78,6 +78,10 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalCo
 			if err != nil {
 				return err
 			}
+			for key, value := range profiles {
+				println(key)
+				mw.ProfileImage(key, []byte(value))
+			}
 		}
 	}
 
@@ -90,9 +94,6 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalCo
 	}
 
 	mw.StripImage()
-	for key, value := range profiles {
-		mw.SetImageProfile(key, []byte(value))
-	}
 
 	err = mw.WriteImage(target)
 
