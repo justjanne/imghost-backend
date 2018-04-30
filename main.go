@@ -54,7 +54,6 @@ func processImage(config *Config, client *redis.Client, value string) {
 	if colorSpace == imagick.COLORSPACE_UNDEFINED {
 		colorSpace = imagick.COLORSPACE_SRGB
 	}
-	println(colorSpaceName(colorSpace))
 
 	err = wandLinear.TransformImageColorspace(imagick.COLORSPACE_RGB)
 	if err != nil {

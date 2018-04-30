@@ -7,58 +7,6 @@ import (
 	"math"
 )
 
-func colorSpaceName(colorSpace imagick.ColorspaceType) string {
-	if colorSpace == imagick.COLORSPACE_UNDEFINED {
-		return "COLORSPACE_UNDEFINED"
-	} else if colorSpace == imagick.COLORSPACE_RGB {
-		return "COLORSPACE_RGB"
-	} else if colorSpace == imagick.COLORSPACE_GRAY {
-		return "COLORSPACE_GRAY"
-	} else if colorSpace == imagick.COLORSPACE_TRANSPARENT {
-		return "COLORSPACE_TRANSPARENT"
-	} else if colorSpace == imagick.COLORSPACE_OHTA {
-		return "COLORSPACE_OHTA"
-	} else if colorSpace == imagick.COLORSPACE_LAB {
-		return "COLORSPACE_LAB"
-	} else if colorSpace == imagick.COLORSPACE_XYZ {
-		return "COLORSPACE_XYZ"
-	} else if colorSpace == imagick.COLORSPACE_YCBCR {
-		return "COLORSPACE_YCBCR"
-	} else if colorSpace == imagick.COLORSPACE_YCC {
-		return "COLORSPACE_YCC"
-	} else if colorSpace == imagick.COLORSPACE_YIQ {
-		return "COLORSPACE_YIQ"
-	} else if colorSpace == imagick.COLORSPACE_YPBPR {
-		return "COLORSPACE_YPBPR"
-	} else if colorSpace == imagick.COLORSPACE_YUV {
-		return "COLORSPACE_YUV"
-	} else if colorSpace == imagick.COLORSPACE_CMYK {
-		return "COLORSPACE_CMYK"
-	} else if colorSpace == imagick.COLORSPACE_SRGB {
-		return "COLORSPACE_SRGB"
-	} else if colorSpace == imagick.COLORSPACE_HSB {
-		return "COLORSPACE_HSB"
-	} else if colorSpace == imagick.COLORSPACE_HSL {
-		return "COLORSPACE_HSL"
-	} else if colorSpace == imagick.COLORSPACE_HWB {
-		return "COLORSPACE_HWB"
-	} else if colorSpace == imagick.COLORSPACE_REC601LUMA {
-		return "COLORSPACE_REC601LUMA"
-	} else if colorSpace == imagick.COLORSPACE_REC601YCBCR {
-		return "COLORSPACE_REC601YCBCR"
-	} else if colorSpace == imagick.COLORSPACE_REC709LUMA {
-		return "COLORSPACE_REC709LUMA"
-	} else if colorSpace == imagick.COLORSPACE_REC709YCBCR {
-		return "COLORSPACE_REC709YCBCR"
-	} else if colorSpace == imagick.COLORSPACE_LOG {
-		return "COLORSPACE_LOG"
-	} else if colorSpace == imagick.COLORSPACE_CMY {
-		return "COLORSPACE_CMY"
-	} else {
-		return "Unknown"
-	}
-}
-
 func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalColorSpace imagick.ColorspaceType, size Size, quality Quality, target string) error {
 	var err error
 	var mw *imagick.MagickWand
@@ -142,15 +90,6 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalCo
 	}
 
 	mw.StripImage()
-	iccProfile := wand.GetImageProfile("ICC")
-	if iccProfile != "" {
-		mw.SetImageProfile("ICC", []byte(iccProfile))
-	}
-	iptcProfile := wand.GetImageProfile("IPTC")
-	if iptcProfile != "" {
-		mw.SetImageProfile("IPTC", []byte(iptcProfile))
-	}
-
 	err = mw.WriteImage(target)
 
 	return err
