@@ -11,6 +11,8 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size,
 	var err error
 	var mw *imagick.MagickWand
 
+	colorSpace := mw.GetImageColorspace()
+
 	if size.Width == 0 && size.Height == 0 {
 		mw = wand.Clone()
 		defer mw.Destroy()
@@ -74,7 +76,7 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size,
 				return err
 			}
 
-			err = mw.TransformImageColorspace(imagick.COLORSPACE_SRGB)
+			err = mw.TransformImageColorspace(colorSpace)
 			if err != nil {
 				return err
 			}
@@ -90,6 +92,7 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size,
 	}
 
 	mw.StripImage()
+	mw.SetImageColorspace(colorSpace)
 
 	err = mw.WriteImage(target)
 
