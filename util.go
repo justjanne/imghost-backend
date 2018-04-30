@@ -7,7 +7,7 @@ import (
 	"math"
 )
 
-func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalColorSpace imagick.ColorspaceType, size Size, quality Quality, target string) error {
+func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalColorSpace imagick.ColorspaceType, profiles map[string]string, size Size, quality Quality, target string) error {
 	var err error
 	var mw *imagick.MagickWand
 
@@ -90,6 +90,10 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalCo
 	}
 
 	mw.StripImage()
+	for key, value := range profiles {
+		mw.SetImageProfile(key, []byte(value))
+	}
+
 	err = mw.WriteImage(target)
 
 	return err
