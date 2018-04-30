@@ -59,28 +59,16 @@ func colorSpaceName(colorSpace imagick.ColorspaceType) string {
 	}
 }
 
-func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size, quality Quality, target string) error {
+func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalColorSpace imagick.ColorspaceType, size Size, quality Quality, target string) error {
 	var err error
 	var mw *imagick.MagickWand
-
-	var colorSpace imagick.ColorspaceType
 
 	if size.Width == 0 && size.Height == 0 {
 		mw = wand.Clone()
 		defer mw.Destroy()
-
-		colorSpace = mw.GetImageColorspace()
-		if colorSpace == imagick.COLORSPACE_UNDEFINED {
-			colorSpace = imagick.COLORSPACE_SRGB
-		}
 	} else {
 		mw = wandLinear.Clone()
 		defer mw.Destroy()
-
-		colorSpace = mw.GetImageColorspace()
-		if colorSpace == imagick.COLORSPACE_UNDEFINED {
-			colorSpace = imagick.COLORSPACE_SRGB
-		}
 
 		width := mw.GetImageWidth()
 		height := mw.GetImageHeight()
@@ -138,7 +126,7 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size,
 				return err
 			}
 
-			err = mw.TransformImageColorspace(colorSpace)
+			err = mw.TransformImageColorspace(originalColorSpace)
 			if err != nil {
 				return err
 			}
@@ -163,7 +151,6 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size,
 		mw.SetImageProfile("IPTC", []byte(iptcProfile))
 	}
 
-	println(colorSpaceName(colorSpace))
 	err = mw.WriteImage(target)
 
 	return err

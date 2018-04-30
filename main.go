@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/go-redis/redis"
 	"encoding/json"
-	"os"
-	"gopkg.in/gographics/imagick.v2/imagick"
 	"fmt"
+	"github.com/go-redis/redis"
+	"gopkg.in/gographics/imagick.v2/imagick"
+	"net/http"
+	"os"
 	"path/filepath"
 	"time"
-	"net/http"
 )
 
 func returnResult(config *Config, client *redis.Client, result Result) {
@@ -19,10 +19,11 @@ func returnResult(config *Config, client *redis.Client, result Result) {
 	client.Publish(config.ResultChannel, string(raw))
 }
 
-func generateSize(errorChannel chan error, wand *imagick.MagickWand, wandLinear *imagick.MagickWand, config *Config, image Image, definition SizeDefinition) {
+func generateSize(errorChannel chan error, wand *imagick.MagickWand, wandLinear *imagick.MagickWand, colorSpace imagick.ColorspaceType, config *Config, image Image, definition SizeDefinition) {
 	errorChannel <- resize(
 		wand,
 		wandLinear,
+		colorSpace,
 		definition.Size,
 		config.Quality,
 		filepath.Join(config.TargetFolder, fmt.Sprintf("%s%s", image.Id, definition.Suffix)),
@@ -49,13 +50,19 @@ func processImage(config *Config, client *redis.Client, value string) {
 	wandLinear := wand.Clone()
 	defer wandLinear.Destroy()
 
+	colorSpace := wand.GetImageColorspace()
+	if colorSpace == imagick.COLORSPACE_UNDEFINED {
+		colorSpace = imagick.COLORSPACE_SRGB
+	}
+	println(colorSpaceName(colorSpace))
+
 	err = wandLinear.TransformImageColorspace(imagick.COLORSPACE_RGB)
 	if err != nil {
 		panic(err)
 	}
 
 	for _, definition := range config.Sizes {
-		go generateSize(errorChannel, wand, wandLinear, config, image, definition)
+		go generateSize(errorChannel, wand, wandLinear, colorSpace, config, image, definition)
 	}
 
 	errors := make([]string, 0)
