@@ -18,11 +18,17 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size,
 		defer mw.Destroy()
 
 		colorSpace = mw.GetImageColorspace()
+		if colorSpace == imagick.COLORSPACE_UNDEFINED {
+			colorSpace = imagick.COLORSPACE_SRGB
+		}
 	} else {
 		mw = wandLinear.Clone()
 		defer mw.Destroy()
 
 		colorSpace = mw.GetImageColorspace()
+		if colorSpace == imagick.COLORSPACE_UNDEFINED {
+			colorSpace = imagick.COLORSPACE_SRGB
+		}
 
 		width := mw.GetImageWidth()
 		height := mw.GetImageHeight()
