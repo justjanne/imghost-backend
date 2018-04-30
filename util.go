@@ -96,7 +96,14 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size,
 	}
 
 	mw.StripImage()
-	mw.SetImageColorspace(colorSpace)
+	iccProfile := wand.GetImageProfile("ICC")
+	if iccProfile != "" {
+		mw.SetImageProfile("ICC", []byte(iccProfile))
+	}
+	iptcProfile := wand.GetImageProfile("IPTC")
+	if iptcProfile != "" {
+		mw.SetImageProfile("IPTC", []byte(iptcProfile))
+	}
 
 	err = mw.WriteImage(target)
 
