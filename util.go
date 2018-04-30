@@ -86,6 +86,7 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, size Size,
 				return err
 			}
 
+			println(colorSpace)
 			err = mw.TransformImageColorspace(colorSpace)
 			if err != nil {
 				return err
