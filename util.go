@@ -73,12 +73,12 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalCo
 			if err != nil {
 				return err
 			}
-
-			err = mw.TransformImageColorspace(originalColorSpace)
-			if err != nil {
-				return err
-			}
 		}
+	}
+
+	err = mw.TransformImageColorspace(imagick.COLORSPACE_SRGB)
+	if err != nil {
+		return err
 	}
 
 	if quality.CompressionQuality != 0 {
@@ -90,10 +90,6 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalCo
 	}
 
 	mw.StripImage()
-	for key, value := range profiles {
-		println(key)
-		mw.ProfileImage(key, []byte(value))
-	}
 
 	err = mw.WriteImage(target)
 
