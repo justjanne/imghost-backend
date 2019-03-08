@@ -48,6 +48,8 @@ func processImage(config *Config, client *redis.Client, value string) {
 		panic(err)
 	}
 
+	_ = wand.AutoOrientImage()
+
 	wandLinear := wand.Clone()
 	defer wandLinear.Destroy()
 

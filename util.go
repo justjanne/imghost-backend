@@ -82,14 +82,14 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalCo
 	}
 
 	if quality.CompressionQuality != 0 {
-		mw.SetImageCompressionQuality(quality.CompressionQuality)
+		_ = mw.SetImageCompressionQuality(quality.CompressionQuality)
 	}
 
 	if len(quality.SamplingFactors) != 0 {
-		mw.SetSamplingFactors(quality.SamplingFactors)
+		_ = mw.SetSamplingFactors(quality.SamplingFactors)
 	}
 
-	mw.StripImage()
+	_ = mw.StripImage()
 
 	err = mw.WriteImage(target)
 
