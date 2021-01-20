@@ -42,6 +42,12 @@ func ResizeImage(config *Config, imageId string) []error {
 
 	_ = wand.AutoOrientImage()
 
+	if len(wand.GetImageProfiles("*")) == 0 {
+		if err = wand.SetImageProfile("icc", ColorspaceSRGB); err != nil {
+			return []error{err}
+		}
+	}
+
 	colorSpace := wand.GetImageColorspace()
 	if colorSpace == imagick.COLORSPACE_UNDEFINED {
 		colorSpace = imagick.COLORSPACE_SRGB
@@ -61,7 +67,7 @@ func ResizeImage(config *Config, imageId string) []error {
 	if err = wand.SetImageDepth(16); err != nil {
 		panic(err)
 	}
-	if err = wand.ProfileImage("icc", WorkingColorspace); err != nil {
+	if err = wand.ProfileImage("icc", ColorspaceACESLinear); err != nil {
 		panic(err)
 	}
 

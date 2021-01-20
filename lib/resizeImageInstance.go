@@ -60,7 +60,7 @@ func ResizeImageInstance(mw *imagick.MagickWand, size Size) error {
 		}
 
 		if (width != nWidth) || (height != nHeight) {
-			if err = mw.ResizeImage(nWidth, nHeight, imagick.FILTER_BOX, 1); err != nil {
+			if err = mw.ResizeImage(nWidth, nHeight, imagick.FILTER_LANCZOS, 1); err != nil {
 				return err
 			}
 		}
