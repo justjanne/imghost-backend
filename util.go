@@ -69,14 +69,14 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalCo
 		}
 
 		if (width != nWidth) || (height != nHeight) {
-			err = mw.ResizeImage(nWidth, nHeight, imagick.FILTER_LANCZOS, 1)
+			err = mw.ResizeImage(nWidth, nHeight, imagick.FILTER_BOX, 1)
 			if err != nil {
 				return err
 			}
 		}
 	}
 
-	err = mw.TransformImageColorspace(imagick.COLORSPACE_SRGB)
+	err = mw.TransformImageColorspace(originalColorSpace)
 	if err != nil {
 		return err
 	}
@@ -90,6 +90,10 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalCo
 	}
 
 	_ = mw.StripImage()
+
+	for key, value := range profiles {
+		_ = mw.SetImageProfile(key, []byte(value))
+	}
 
 	err = mw.WriteImage(target)
 

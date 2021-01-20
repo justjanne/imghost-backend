@@ -63,7 +63,7 @@ func processImage(config *Config, client *redis.Client, value string) {
 		profiles[name] = wand.GetImageProfile(name)
 	}
 
-	err = wandLinear.TransformImageColorspace(imagick.COLORSPACE_RGB)
+	err = wandLinear.TransformImageColorspace(imagick.COLORSPACE_LAB)
 	if err != nil {
 		panic(err)
 	}
