@@ -1,4 +1,4 @@
-package main
+package lib
 
 import (
 	"errors"
@@ -7,17 +7,9 @@ import (
 	"math"
 )
 
-func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalColorSpace imagick.ColorspaceType, profiles map[string]string, size Size, quality Quality, target string) error {
+func ResizeImageInstance(mw *imagick.MagickWand, size Size) error {
 	var err error
-	var mw *imagick.MagickWand
-
-	if size.Width == 0 && size.Height == 0 {
-		mw = wand.Clone()
-		defer mw.Destroy()
-	} else {
-		mw = wandLinear.Clone()
-		defer mw.Destroy()
-
+	if size.Width != 0 || size.Height != 0 {
 		width := mw.GetImageWidth()
 		height := mw.GetImageHeight()
 
@@ -47,8 +39,7 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalCo
 				dx := int((width - cWidth) / 2)
 				dy := int((height - cHeight) / 2)
 
-				err = mw.CropImage(cWidth, cHeight, dx, dy)
-				if err != nil {
+				if err = mw.CropImage(cWidth, cHeight, dx, dy); err != nil {
 					return err
 				}
 
@@ -69,33 +60,11 @@ func resize(wand *imagick.MagickWand, wandLinear *imagick.MagickWand, originalCo
 		}
 
 		if (width != nWidth) || (height != nHeight) {
-			err = mw.ResizeImage(nWidth, nHeight, imagick.FILTER_BOX, 1)
-			if err != nil {
+			if err = mw.ResizeImage(nWidth, nHeight, imagick.FILTER_BOX, 1); err != nil {
 				return err
 			}
 		}
 	}
 
-	err = mw.TransformImageColorspace(originalColorSpace)
-	if err != nil {
-		return err
-	}
-
-	if quality.CompressionQuality != 0 {
-		_ = mw.SetImageCompressionQuality(quality.CompressionQuality)
-	}
-
-	if len(quality.SamplingFactors) != 0 {
-		_ = mw.SetSamplingFactors(quality.SamplingFactors)
-	}
-
-	_ = mw.StripImage()
-
-	for key, value := range profiles {
-		_ = mw.SetImageProfile(key, []byte(value))
-	}
-
-	err = mw.WriteImage(target)
-
-	return err
+	return nil
 }

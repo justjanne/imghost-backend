@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"git.kuschku.de/justjanne/imghost/lib"
 	"github.com/go-redis/redis"
 	"gopkg.in/gographics/imagick.v2/imagick"
 	"net/http"
@@ -11,7 +12,7 @@ import (
 	"time"
 )
 
-func returnResult(config *Config, client *redis.Client, result Result) {
+func returnResult(config *lib.Config, client *redis.Client, result lib.Result) {
 	raw, err := json.Marshal(result)
 	if err != nil {
 		panic(err)
@@ -19,79 +20,31 @@ func returnResult(config *Config, client *redis.Client, result Result) {
 	client.Publish(config.ResultChannel, string(raw))
 }
 
-func generateSize(errorChannel chan error, wand *imagick.MagickWand, wandLinear *imagick.MagickWand, colorSpace imagick.ColorspaceType, profiles map[string]string, config *Config, image Image, definition SizeDefinition) {
-	errorChannel <- resize(
-		wand,
-		wandLinear,
-		colorSpace,
-		profiles,
-		definition.Size,
-		config.Quality,
-		filepath.Join(config.TargetFolder, fmt.Sprintf("%s%s", image.Id, definition.Suffix)),
-	)
-}
-
-func processImage(config *Config, client *redis.Client, value string) {
-	image := Image{}
+func processImage(config *lib.Config, client *redis.Client, value string) {
+	image := lib.Image{}
 	if err := json.Unmarshal([]byte(value), &image); err != nil {
 		panic(err)
 	}
 	fmt.Printf("Received task %s at %d\n", image.Id, time.Now().Unix())
 
-	errorChannel := make(chan error)
+	errors := lib.ResizeImage(config, image.Id)
+	_ = os.Remove(filepath.Join(config.SourceFolder, image.Id))
 
-	wand := imagick.NewMagickWand()
-	defer wand.Destroy()
-
-	err := wand.ReadImage(filepath.Join(config.SourceFolder, image.Id))
-	if err != nil {
-		panic(err)
+	errorMessages := make([]string, len(errors))
+	for i, err := range errors {
+		errorMessages[i] = err.Error()
 	}
-
-	_ = wand.AutoOrientImage()
-
-	wandLinear := wand.Clone()
-	defer wandLinear.Destroy()
-
-	colorSpace := wand.GetImageColorspace()
-	if colorSpace == imagick.COLORSPACE_UNDEFINED {
-		colorSpace = imagick.COLORSPACE_SRGB
-	}
-
-	profiles := map[string]string{}
-	for _, name := range wand.GetImageProfiles("*") {
-		profiles[name] = wand.GetImageProfile(name)
-	}
-
-	err = wandLinear.TransformImageColorspace(imagick.COLORSPACE_LAB)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, definition := range config.Sizes {
-		go generateSize(errorChannel, wand, wandLinear, colorSpace, profiles, config, image, definition)
-	}
-
-	errors := make([]string, 0)
-	for i := 0; i < len(config.Sizes); i++ {
-		err := <-errorChannel
-		if err != nil {
-			errors = append(errors, err.Error())
-		}
-	}
-
-	os.Remove(filepath.Join(config.SourceFolder, image.Id))
 
 	fmt.Printf("Finished task %s at %d\n", image.Id, time.Now().Unix())
 
 	if len(errors) != 0 {
-		returnResult(config, client, Result{
+		returnResult(config, client, lib.Result{
 			Id:      image.Id,
 			Success: false,
-			Errors:  errors,
+			Errors:  errorMessages,
 		})
 	} else {
-		returnResult(config, client, Result{
+		returnResult(config, client, lib.Result{
 			Id:      image.Id,
 			Success: true,
 		})
@@ -100,7 +53,7 @@ func processImage(config *Config, client *redis.Client, value string) {
 
 func main() {
 	go func() {
-		config := NewConfigFromEnv()
+		config := lib.NewConfigFromEnv()
 
 		imagick.Initialize()
 		defer imagick.Terminate()
@@ -120,11 +73,10 @@ func main() {
 	}()
 
 	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("OK"))
+		_, _ = w.Write([]byte("OK"))
 	})
 
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
 }

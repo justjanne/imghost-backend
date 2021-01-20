@@ -1,7 +1,8 @@
-package main
+package lib
 
 import (
 	"encoding/json"
+	"gopkg.in/gographics/imagick.v2/imagick"
 	"os"
 	"time"
 )
@@ -13,6 +14,12 @@ type Image struct {
 	CreatedAt    time.Time
 	OriginalName string
 	MimeType     string `json:"mime_type"`
+}
+
+type ImageParameters struct {
+	profiles   map[string][]byte
+	colorspace imagick.ColorspaceType
+	depth      uint
 }
 
 type Result struct {
@@ -66,8 +73,8 @@ type Config struct {
 func NewConfigFromEnv() Config {
 	config := Config{}
 
-	json.Unmarshal([]byte(os.Getenv("IK8R_SIZES")), &config.Sizes)
-	json.Unmarshal([]byte(os.Getenv("IK8R_QUALITY")), &config.Quality)
+	_ = json.Unmarshal([]byte(os.Getenv("IK8R_SIZES")), &config.Sizes)
+	_ = json.Unmarshal([]byte(os.Getenv("IK8R_QUALITY")), &config.Quality)
 	config.SourceFolder = os.Getenv("IK8R_SOURCE_FOLDER")
 	config.TargetFolder = os.Getenv("IK8R_TARGET_FOLDER")
 	config.Redis.Address = os.Getenv("IK8R_REDIS_ADDRESS")
