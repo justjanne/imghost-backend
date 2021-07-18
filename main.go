@@ -16,6 +16,8 @@ var queueGauge = promauto.NewGaugeVec(
 	},
 	[]string{"state"},
 )
+var queueGaugeQueued = queueGauge.WithLabelValues("queued")
+var queueGaugeInProgress = queueGauge.WithLabelValues("inProgress")
 
 var imageCounter = promauto.NewCounterVec(
 	prometheus.CounterOpts{
@@ -24,6 +26,8 @@ var imageCounter = promauto.NewCounterVec(
 	},
 	[]string{"result"},
 )
+var imageCounterSuccess = imageCounter.WithLabelValues("success")
+var imageCounterFailure = imageCounter.WithLabelValues("failure")
 
 var imageProcessDuration = promauto.NewCounter(prometheus.CounterOpts{
 	Name: "imghost_process_duration",
@@ -47,7 +51,7 @@ func main() {
 	})
 
 	go serveQueue(client, config.ImageQueue, func(value string) {
-		queueGauge.WithLabelValues("queued").Dec()
+		queueGaugeQueued.Dec()
 		ProcessImage(&config, client, value)
 	})
 	if err := http.ListenAndServe(":2112", nil); err != nil {

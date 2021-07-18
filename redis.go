@@ -11,7 +11,7 @@ func serveQueue(client *redis.Client, queue string, function func(value string))
 		element := client.BLPop(0, fmt.Sprintf("queue:%s", queue))
 		if len(element.Val()) == 2 {
 			value := element.Val()[1]
-			queueGauge.Inc()
+			queueGaugeQueued.Inc()
 			go function(value)
 		}
 	}
