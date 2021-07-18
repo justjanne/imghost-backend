@@ -1,8 +1,8 @@
-package lib
+package main
 
 import (
 	"encoding/json"
-	"gopkg.in/gographics/imagick.v2/imagick"
+	"github.com/justjanne/imgconv"
 	"os"
 	"time"
 )
@@ -16,37 +16,15 @@ type Image struct {
 	MimeType     string `json:"mime_type"`
 }
 
-type ImageParameters struct {
-	profiles   map[string][]byte
-	colorspace imagick.ColorspaceType
-	depth      uint
-}
-
 type Result struct {
 	Id      string   `json:"id"`
 	Success bool     `json:"success"`
 	Errors  []string `json:"errors"`
 }
 
-type Size struct {
-	Width  uint   `json:"width"`
-	Height uint   `json:"height"`
-	Format string `json:"format"`
-}
-
-const (
-	sizeFormatCover   = "cover"
-	sizeFormatContain = "contain"
-)
-
-type Quality struct {
-	CompressionQuality uint      `json:"compression_quality"`
-	SamplingFactors    []float64 `json:"sampling_factors"`
-}
-
 type SizeDefinition struct {
-	Size   Size   `json:"size"`
-	Suffix string `json:"suffix"`
+	Size   imgconv.Size `json:"size"`
+	Suffix string       `json:"suffix"`
 }
 
 type RedisConfig struct {
@@ -61,7 +39,7 @@ type DatabaseConfig struct {
 
 type Config struct {
 	Sizes         []SizeDefinition
-	Quality       Quality
+	Quality       imgconv.Quality
 	SourceFolder  string
 	TargetFolder  string
 	Redis         RedisConfig
