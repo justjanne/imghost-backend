@@ -9,37 +9,21 @@ import (
 	"net/http"
 )
 
-var queueGauge = promauto.NewGauge(prometheus.GaugeOpts{
-	Name: "imghost_waiting_images",
-	Help: "The number of waiting image events",
-	ConstLabels: map[string]string{
-		"state": "queued",
+var queueGauge = promauto.NewGaugeVec(
+	prometheus.GaugeOpts{
+		Name: "imghost_waiting_images",
+		Help: "The number of waiting image events",
 	},
-})
+	[]string{"state"},
+)
 
-var inProgressGauge = promauto.NewGauge(prometheus.GaugeOpts{
-	Name: "imghost_waiting_images",
-	Help: "The number of image events in progress",
-	ConstLabels: map[string]string{
-		"state": "in_progress",
+var imageCounter = promauto.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "imghost_processed_images_total",
+		Help: "The total number of successfully processed image events",
 	},
-})
-
-var imageCounterSuccess = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "imghost_processed_images_total",
-	Help: "The total number of successfully processed image events",
-	ConstLabels: map[string]string{
-		"success": "true",
-	},
-})
-
-var imageCounterFailure = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "imghost_processed_images_total",
-	Help: "The total number of errored image events",
-	ConstLabels: map[string]string{
-		"success": "false",
-	},
-})
+	[]string{"result"},
+)
 
 var imageProcessDuration = promauto.NewCounter(prometheus.CounterOpts{
 	Name: "imghost_process_duration",
@@ -63,8 +47,7 @@ func main() {
 	})
 
 	go serveQueue(client, config.ImageQueue, func(value string) {
-		queueGauge.Dec()
-		inProgressGauge.Inc()
+		queueGauge.WithLabelValues("queued").Dec()
 		ProcessImage(&config, client, value)
 	})
 	if err := http.ListenAndServe(":2112", nil); err != nil {

@@ -14,8 +14,8 @@ func trackTime(start time.Time, function func(time.Duration)) {
 }
 
 func ProcessImage(config *Config, client *redis.Client, value string) {
-	inProgressGauge.Inc()
-	defer inProgressGauge.Dec()
+	queueGauge.WithLabelValues("in_progress").Inc()
+	defer queueGauge.WithLabelValues("in_progress").Dec()
 	defer trackTime(time.Now(), func(duration time.Duration) {
 		imageProcessDuration.Add(float64(duration.Milliseconds()))
 	})
@@ -35,14 +35,14 @@ func ProcessImage(config *Config, client *redis.Client, value string) {
 	}
 
 	if len(errors) != 0 {
-		imageCounterFailure.Inc()
+		imageCounter.WithLabelValues("error").Inc()
 		returnResult(config, client, Result{
 			Id:      image.Id,
 			Success: false,
 			Errors:  errorMessages,
 		})
 	} else {
-		imageCounterSuccess.Inc()
+		imageCounter.WithLabelValues("success").Inc()
 		returnResult(config, client, Result{
 			Id:      image.Id,
 			Success: true,
