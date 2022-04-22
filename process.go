@@ -5,21 +5,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"github.com/prometheus/client_golang/prometheus"
 	"os"
 	"path/filepath"
 	"time"
 )
 
-func trackTime(start time.Time, function func(time.Duration)) {
-	function(time.Now().UTC().Sub(start.UTC()))
+func trackTimeSince(counter prometheus.Counter, start time.Time) time.Time {
+	now := time.Now().UTC()
+	counter.Add(float64(now.Sub(start).Milliseconds()) / 1000.0)
+	return now
 }
 
 func ProcessImage(ctx context.Context, config *Config, client *redis.Client, value string) {
 	queueGaugeInProgress.Inc()
 	defer queueGaugeInProgress.Dec()
-	defer trackTime(time.Now(), func(duration time.Duration) {
-		imageProcessDuration.Add(float64(duration.Milliseconds()))
-	})
 
 	image := Image{}
 	if err := json.Unmarshal([]byte(value), &image); err != nil {

@@ -30,10 +30,15 @@ var imageCounter = promauto.NewCounterVec(
 var imageCounterSuccess = imageCounter.WithLabelValues("success")
 var imageCounterFailure = imageCounter.WithLabelValues("failure")
 
-var imageProcessDuration = promauto.NewCounter(prometheus.CounterOpts{
+var imageProcessDuration = promauto.NewCounterVec(prometheus.CounterOpts{
 	Name: "imghost_process_duration",
-	Help: "The total amount of time spent processing images",
-})
+	Help: "The amount of time spent processing images",
+}, []string{"task"})
+var imageProcessDurationRead = imageProcessDuration.WithLabelValues("read")
+var imageProcessDurationClone = imageProcessDuration.WithLabelValues("clone")
+var imageProcessDurationCrop = imageProcessDuration.WithLabelValues("crop")
+var imageProcessDurationResize = imageProcessDuration.WithLabelValues("resize")
+var imageProcessDurationWrite = imageProcessDuration.WithLabelValues("write")
 
 func main() {
 	config := NewConfigFromEnv()
