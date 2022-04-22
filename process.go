@@ -1,9 +1,10 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"os"
 	"path/filepath"
 	"time"
@@ -13,7 +14,7 @@ func trackTime(start time.Time, function func(time.Duration)) {
 	function(time.Now().UTC().Sub(start.UTC()))
 }
 
-func ProcessImage(config *Config, client *redis.Client, value string) {
+func ProcessImage(ctx context.Context, config *Config, client *redis.Client, value string) {
 	queueGaugeInProgress.Inc()
 	defer queueGaugeInProgress.Dec()
 	defer trackTime(time.Now(), func(duration time.Duration) {
@@ -36,14 +37,14 @@ func ProcessImage(config *Config, client *redis.Client, value string) {
 
 	if len(errors) != 0 {
 		imageCounterFailure.Inc()
-		returnResult(config, client, Result{
+		returnResult(ctx, config, client, Result{
 			Id:      image.Id,
 			Success: false,
 			Errors:  errorMessages,
 		})
 	} else {
 		imageCounterSuccess.Inc()
-		returnResult(config, client, Result{
+		returnResult(ctx, config, client, Result{
 			Id:      image.Id,
 			Success: true,
 		})

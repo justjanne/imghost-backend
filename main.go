@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/go-redis/redis"
+	"context"
+	"github.com/go-redis/redis/v8"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gopkg.in/gographics/imagick.v2/imagick"
+	"gopkg.in/gographics/imagick.v3/imagick"
 	"net/http"
 )
 
@@ -50,9 +51,9 @@ func main() {
 		_, _ = w.Write([]byte("OK"))
 	})
 
-	go serveQueue(client, config.ImageQueue, func(value string) {
+	go serveQueue(context.Background(), client, config.ImageQueue, func(ctx context.Context, value string) {
 		queueGaugeQueued.Dec()
-		ProcessImage(&config, client, value)
+		ProcessImage(ctx, &config, client, value)
 	})
 	if err := http.ListenAndServe(":2112", nil); err != nil {
 		panic(err)

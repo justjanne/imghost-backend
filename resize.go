@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/justjanne/imgconv"
-	"gopkg.in/gographics/imagick.v2/imagick"
+	"gopkg.in/gographics/imagick.v3/imagick"
 	"path/filepath"
 )
 
