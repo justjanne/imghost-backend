@@ -22,8 +22,8 @@ RUN go build -o app .
 FROM alpine:3.15
 
 RUN apk --no-cache add imagemagick
-COPY --from=builder /go/src/app /app
 RUN addgroup -g 1000 -S app && \
     adduser -u 1000 -G app -S app
+COPY --from=builder /go/src/app /
 USER app
 ENTRYPOINT ["/app"]
